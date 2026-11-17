@@ -17,7 +17,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
@@ -30,10 +30,11 @@ from agentic_web_demo.dashboard.credential_store import CredentialUnavailable
 from agentic_web_demo.dashboard.service import Approval, PlanInput
 from agentic_web_demo.exports import CONTENT_TYPES, ExportError, build_export
 from agentic_web_demo.extension_channel import ExtensionRuns
+from agentic_web_demo.model_catalog import DEFAULT_MODEL, model_catalog, supported_model
 from agentic_web_demo.portal.app import PortalSettings
 
 ASSETS = Path(__file__).parent / "static"
-UI_VERSION = "2026-11-11.2"
+UI_VERSION = "2026-11-17.1"
 
 
 class CustomApproval(BaseModel):
@@ -60,9 +61,16 @@ class Login(BaseModel):
 class ModelKey(BaseModel):
     model_config = ConfigDict(extra="forbid")
     api_key: SecretStr = Field(min_length=1, max_length=1024)
-    model: str = Field(pattern=r"^[A-Za-z0-9._:-]{1,100}$")
+    model: str = Field(default=DEFAULT_MODEL, pattern=r"^[A-Za-z0-9._:-]{1,100}$")
     remember: bool = False
     authorized: Literal[True]
+
+    @field_validator("model")
+    @classmethod
+    def current_model(cls, value):
+        if not supported_model(value):
+            raise ValueError("Choose a model from the current model list.")
+        return value
 
 
 class AdminAction(BaseModel):
@@ -253,8 +261,8 @@ def create_app(settings=None, service=None):
         if request.url.path == "/api/model-key":
             return JSONResponse(
                 {
-                    "detail": "Enter a key and model ID, and confirm you are "
-                    "authorized to use this key and its billing account."
+                    "detail": "Choose a current model from the dropdown and enter your API key. "
+                    "Save API connection authorizes use of the key and its billing account."
                 },
                 status_code=422,
             )
@@ -390,6 +398,7 @@ def create_app(settings=None, service=None):
             "adapter": "demo-hotels",
             "model": current.model_settings.model if current.model_settings else "Not configured",
             "model_configured": current.model_settings is not None,
+            **model_catalog(),
             "desktop": desktop,
             "capabilities": capabilities,
             "policy": load_rules(service.policy_path).model_dump(mode="json"),

@@ -1,6 +1,6 @@
 "use strict";
 const $ = id => document.getElementById(id);
-const UI_VERSION = "2026-11-11.2";
+const UI_VERSION = "2026-11-17.1";
 document.documentElement.dataset.agenticUiVersion = UI_VERSION;
 document.documentElement.dataset.agenticConnection = "loading";
 let instanceId = null, connectionBlocked = false;
@@ -59,6 +59,26 @@ let planSubmitting = false, executionSubmitting = false, keySubmitting = false;
 let desktopMode = false;
 let dashboardCapabilities = {hotel_demo: true, event_publishing: true};
 function eventPublishingEnabled() { return dashboardCapabilities.event_publishing; }
+function updateModelPicker(config) {
+  const picker = $("model-id"), fallback = config.default_model || "gpt-5.6-luna";
+  if (Array.isArray(config.model_options) && config.model_options.length) {
+    const groups = new Map(), fragment = document.createDocumentFragment();
+    for (const model of config.model_options) {
+      if (!model || typeof model.id !== "string" || typeof model.label !== "string") continue;
+      const family = typeof model.family === "string" ? model.family : "Models";
+      if (!groups.has(family)) {
+        const group = document.createElement("optgroup"); group.label = family;
+        groups.set(family, group); fragment.append(group);
+      }
+      const option = document.createElement("option"); option.value = model.id;
+      option.textContent = model.label + (model.id === fallback ? " (default)" : "");
+      groups.get(family).append(option);
+    }
+    if (fragment.childNodes.length) picker.replaceChildren(fragment);
+  }
+  const selected = config.model_configured ? config.model : fallback;
+  picker.value = Array.from(picker.options).some(option => option.value === selected) ? selected : fallback;
+}
 function applyDashboardMode(settings) {
   const changed = typeof settings.desktop === "boolean" && desktopMode !== settings.desktop;
   if (typeof settings.desktop === "boolean") desktopMode = settings.desktop;
@@ -241,7 +261,7 @@ async function workspace() {
   $("account-label").hidden = false; $("account-label").textContent = cfg.username;
   $("account-label").title = `${cfg.username} · ${cfg.role}`;
   $("model-help").hidden = $("mode").value !== "model-assisted" || modelConfigured;
-  if (modelConfigured) $("model-id").value = cfg.model;
+  updateModelPicker(cfg);
   showView(activeView);
   $("configuration").textContent = desktopMode ?
     `Signed in: ${cfg.username} · Model: ${cfg.model}. Saved results stay on this computer.` :

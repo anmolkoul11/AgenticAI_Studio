@@ -1,5 +1,26 @@
 # OpenAI setup (LangGraph and CrewAI)
 
+## Dashboard model selection
+
+In **API connection**, choose a model from the **Model** dropdown and save the
+connection. **GPT-5.6 Luna** (`gpt-5.6-luna`) is the default. The menu contains
+verified general-purpose GPT-5.6, GPT-6, GPT-6.1 and GPT-6.2 models; older and
+specialized models are excluded. The selected model is shared by browser
+navigation and extraction, including Companion tasks. Changing a selection does
+not make an API call. Model access and cost depend on your OpenAI project.
+
+If a remembered connection uses a model outside this list, its saved key is kept
+but not activated. Choose a current model and add your key again. Save it with
+**Remember my key on this computer** if you want to replace the remembered
+connection. Already-open browser agents retain their original settings; cancel
+the old task and start a fresh workflow to use the new connection.
+
+The menu was checked against the [official model catalogue](https://developers.openai.com/api/docs/models)
+and [GPT-5.6 Luna documentation](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
+on November 17, 2026. Catalogue presence does not verify access for your account.
+
+## Command-line setup
+
 OpenAI is now the only implemented live provider. The retired Ollama adapter and
 its provider-specific tests/setup guide have been removed. This does not uninstall
 Ollama or delete downloaded models. Structured plans and approved execution still
@@ -9,7 +30,7 @@ In the terminal where you will create model-assisted proposals:
 
 ```powershell
 $env:AGENTIC_MODEL_PROVIDER = "openai"
-$env:AGENTIC_MODEL_NAME = "gpt-5.4-mini"
+$env:AGENTIC_MODEL_NAME = "gpt-5.6-luna"
 $env:AGENTIC_MODEL_MAX_RETRIES = "0"
 $env:AGENTIC_MODEL_TIMEOUT_SECONDS = "60"
 $env:AGENTIC_MODEL_MAX_OUTPUT_TOKENS = "1200"

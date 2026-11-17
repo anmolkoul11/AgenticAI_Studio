@@ -1,8 +1,8 @@
 # Agentic Studio: Windows quick start
 
-**Download one file: `AgenticStudio-1.0.0-win-x64.zip` (about 502 MB).**
+**Download one file: `AgenticStudio-1.0.1-win-x64.zip` (about 502 MB).**
 This is a portable app: extract it and open it. **There is no Setup.exe installer
-in this release.** You do not need Python, Docker or any commands.
+in this release.** You do not need Python, Docker or any other tech stack.
 
 The ZIP contains:
 
@@ -28,12 +28,12 @@ The ZIP contains:
 Complete website sign-in, CAPTCHA or missing details when prompted.
 If your development dashboard is already running, close it first.
 
-## Use your existing Chrome or Edge tab (optional)
+## Use your existing Chrome or Edge tab - Browser Companion (Recommended)
 
 1. In the app's status window, click **Extension setup** to open the included folder.
 2. Open `chrome://extensions` or `edge://extensions` in your browser.
 3. Turn on **Developer mode**, click **Load unpacked**, and select the
-   **BrowserCompanion** folder. Disable any older developer copy first.
+   **BrowserCompanion** folder which you extracted from the distributable zip file. Disable any older developer copy if any.
 4. Keep the dashboard signed in in that same browser. Open your website tab,
    open Browser Companion, describe your task and click **Start**.
 

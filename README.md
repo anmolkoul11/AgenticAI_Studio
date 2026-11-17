@@ -25,12 +25,13 @@ missing or uncertain, the dashboard shows it for review.
 
 ## Start using the Windows app
 
-The current Windows package is **`AgenticStudio-1.0.0-win-x64.zip`**, a portable
+The current Windows package is **`AgenticStudio-1.0.1-win-x64.zip`**, a portable
 app rather than a Setup.exe installer. Extract the whole ZIP and open
 `AgenticStudio.exe`. Python, the required libraries and Chromium are included;
 you do not need to install developer tools or Docker.
 
 Create a local account and add your own OpenAI API key in **API connection**.
+GPT-5.6 Luna is the default model; use the **Model** dropdown to choose another current model.
 Browser Companion is included, but must be added to Chrome or Edge separately
 if you want to use an existing tab.
 

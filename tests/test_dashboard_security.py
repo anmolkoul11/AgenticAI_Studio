@@ -12,6 +12,7 @@ from agentic_web_demo.dashboard.accounts import Accounts
 from agentic_web_demo.dashboard.app import create_app
 from agentic_web_demo.dashboard.credential_store import CredentialStore, CredentialUnavailable
 from agentic_web_demo.dashboard.service import DashboardService
+from agentic_web_demo.model_catalog import DEFAULT_MODEL
 
 PASSWORD = "test-password-not-a-real-secret"
 
@@ -83,7 +84,7 @@ def test_remembered_keys_are_private_and_forget_clears_all_sessions(tmp_path):
     alice = accounts.register("alice", PASSWORD)
     bob = accounts.register("bob", PASSWORD)
     sid = accounts.sign_in(alice, "alice")
-    accounts.save_credential(sid, ModelSettings("fixture", "alice-sentinel"), True)
+    accounts.save_credential(sid, ModelSettings(DEFAULT_MODEL, "alice-sentinel"), True)
     accounts.close()
     restarted = Accounts(
         tmp_path, Path("config/rules.yaml"), "http://127.0.0.1:8000", credential_store=store
@@ -155,7 +156,7 @@ def test_admin_authorization_step_up_and_user_key_ownership(tmp_path):
             )
             payload = {
                 "api_key": "alice-key",
-                "model": "fixture",
+                "model": DEFAULT_MODEL,
                 "remember": True,
                 "authorized": True,
             }

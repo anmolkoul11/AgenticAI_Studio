@@ -7,6 +7,7 @@ import pytest
 from test_source_inventory import inventory_browser as shared_browser
 
 from agentic_web_demo.dashboard.app import ASSETS, UI_VERSION
+from agentic_web_demo.model_catalog import model_catalog
 
 
 def test_api_setup_notice_is_outside_hidden_workflow_steps():
@@ -24,8 +25,9 @@ def setup_ui(request):
         html = (ASSETS / "index.html").read_text(encoding="utf-8")
         page.set_content(re.sub(r"<script\b[^>]*>.*?</script>", "", html, flags=re.S))
         page.add_script_tag(
-            content="window.fixtureUiVersion = " + json.dumps(UI_VERSION) + ";" + """
+            content="window.fixtureUiVersion = " + json.dumps(UI_VERSION) + ";window.fixtureCatalog=" + json.dumps(model_catalog()) + ";" + """
             window.fixtureConfigured = false;
+            window.fixtureModel = fixtureCatalog.default_model;
             window.fixtureSignedIn = false;
             window.fixtureRequests = [];
             window.setInterval = () => 0;
@@ -40,7 +42,7 @@ def setup_ui(request):
               };
               else if (path === '/api/config') value = {
                 username:'fixture-user', role:'user', model_configured:fixtureConfigured,
-                model:fixtureConfigured ? 'fixture-model' : 'Not configured',
+                ...fixtureCatalog, model:fixtureConfigured ? fixtureModel : 'Not configured',
                 target:'local-fixture', cities:['New York'], credential_saved:false,
                 secure_storage_available:false, secure_storage_label:'Fixture storage'
               };
@@ -49,7 +51,8 @@ def setup_ui(request):
               };
               else if (path === '/api/jobs') value = [];
               else if (path === '/api/model-key' && method === 'POST') {
-                fixtureConfigured = true; value = {guidance:'Fixture connection saved'};
+                fixtureConfigured = true; fixtureModel = JSON.parse(options.body).model;
+                value = {guidance:'Fixture connection saved'};
               } else if (['/api/model-key/clear','/api/model-key/forget'].includes(path)) {
                 fixtureConfigured = false; value = {guidance:'Fixture connection removed'};
               } else throw new Error('Unexpected fixture request: ' + path);
@@ -101,7 +104,7 @@ def test_saved_connection_hides_notice_and_removal_restores_it(setup_ui, remove_
     page.locator("#api-setup-open").click()
     page.evaluate("""async () => {
       $('api-key').value = 'fixture-only-not-a-real-key';
-      $('model-id').value = 'fixture-model';
+      $('model-id').value = 'gpt-5.6-luna';
       await $('key-form').onsubmit({preventDefault(){},submitter:$('save-key')});
     }""")
     assert not page.locator("#api-setup-notice").is_visible()
@@ -197,7 +200,7 @@ def test_explicit_start_without_a_key_opens_setup_without_a_paid_request(setup_u
 
 def test_key_save_requires_its_button_and_repeated_submit_sends_one_payload(setup_ui):
     result = setup_ui.evaluate("""async()=>{
-      $('api-key').value='fixture-only-not-a-real-key';$('model-id').value='fixture-model';
+      $('api-key').value='fixture-only-not-a-real-key';$('model-id').value='gpt-5.6-luna';
       await $('key-form').onsubmit({preventDefault(){},submitter:$('clear-key')});
       const withoutSave=fixtureRequests.length;
       const originalFetch=window.fetch;let finish;const payloads=[];
@@ -218,6 +221,6 @@ def test_key_save_requires_its_button_and_repeated_submit_sends_one_payload(setu
     }""")
     assert result == {"withoutSave": 0, "inFlight": True,
                       "payloads": [{"api_key": "fixture-only-not-a-real-key",
-                                    "model": "fixture-model", "remember": False,
+                                    "model": "gpt-5.6-luna", "remember": False,
                                     "authorized": True}],
                       "keyAfter": "", "submitting": False, "saveEnabled": True}

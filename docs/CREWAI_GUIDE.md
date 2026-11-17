@@ -66,7 +66,7 @@ The following planning command makes a billable model call with synthetic data.
 
 ```powershell
 $env:AGENTIC_MODEL_PROVIDER = "openai"
-$env:AGENTIC_MODEL_NAME = "gpt-5.4-mini"
+$env:AGENTIC_MODEL_NAME = "gpt-5.6-luna"
 $demoRequest = "Find New York hotels from $checkIn to $checkOut, at most USD 200 per night including taxes, rated at least 4 out of 5."
 $proposalJson = uv run --locked agentic-demo crewai plan --request $demoRequest --base-url $portalUrl --allow-model-api
 if ($LASTEXITCODE -ne 0) { $proposalJson; throw "Planning failed; stop here." }

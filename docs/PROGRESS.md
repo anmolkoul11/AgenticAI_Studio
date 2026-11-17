@@ -1,5 +1,38 @@
 # Progress
 
+## Current model dropdown - 2026-11-17, manual verification pending
+
+The API connection form now uses one local catalogue. `gpt-5.6-luna` is the
+default. Ten documented choices cover GPT-5.6 Luna/Terra/Sol, GPT-6 Luna/Sol/Astra,
+GPT-6.1 Terra/Sol and GPT-6.2 Sol/Astra. Bare `gpt-5.6` is not a documented API ID;
+older families, snapshots and specialized audio/image/security models are excluded.
+
+Checked the [official catalogue](https://developers.openai.com/api/docs/models)
+and each included model page on November 17 for Responses API, structured output
+and text/image support. Account-specific access has not been checked. Opening
+or changing the dropdown makes no provider request; Save applies the connection.
+
+The API rejects unsupported choices. A remembered older-model connection leaves
+the session unconfigured with a notice; its stored key/model are neither deleted
+nor silently rewritten. Re-enter the key and choose a current model to update it.
+Existing agents retain their original settings, so start a fresh workflow after
+changing the connection. CLI configuration remains explicit and generic; current
+examples use Luna. Historical evidence and transport fixtures remain unchanged.
+
+UI version is `2026-11-17.1`. Navigation, extraction prompts, output budgets,
+provider authentication and site behavior are unchanged. Authored catalogue,
+credential-migration, API and dropdown regressions; no tests, validators, app
+startup or paid API calls were run. Portable `1.0.1` built successfully at
+`dist/windows/1.0.1/AgenticStudio-1.0.1-win-x64.zip`; the previous `1.0.0`
+package remains intact. This is an unsigned pilot pending manual verification.
+
+User-run regression commands:
+
+```powershell
+uv run --locked pytest tests/test_model_catalog.py tests/test_dashboard_accounts.py tests/test_dashboard_security.py -v
+uv run --locked pytest tests/test_dashboard_model_picker.py tests/test_dashboard_api_setup.py --run-browser -v
+```
+
 ## Windows desktop pilot package - 2026-11-11, manual verification pending
 
 Prepared the `release-v1.0` desktop distribution: a local status window starts

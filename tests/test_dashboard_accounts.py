@@ -12,6 +12,7 @@ from test_dashboard import SETTINGS, fields, finished
 from agentic_web_demo.dashboard.accounts import Accounts
 from agentic_web_demo.dashboard.app import create_app
 from agentic_web_demo.dashboard.service import DashboardService
+from agentic_web_demo.model_catalog import DEFAULT_MODEL
 
 
 def sign_in(client, username):
@@ -105,7 +106,7 @@ def test_keys_are_session_only_and_no_environment_fallback(site, monkeypatch):
     key = "session-key-sentinel"
     response = client.post(
         "/api/model-key",
-        json={"api_key": key, "model": "fixture-model", "authorized": True},
+        json={"api_key": key, "model": DEFAULT_MODEL, "authorized": True},
         headers=headers,
     )
     assert response.status_code == 200 and key not in response.text
@@ -118,7 +119,7 @@ def test_keys_are_session_only_and_no_environment_fallback(site, monkeypatch):
     assert client.get("/api/config").json()["model_configured"] is False
     client.post(
         "/api/model-key",
-        json={"api_key": key, "model": "fixture-model", "authorized": True},
+        json={"api_key": key, "model": DEFAULT_MODEL, "authorized": True},
         headers=headers,
     )
     client.post("/api/model-key/clear", json={}, headers=headers)
@@ -133,7 +134,7 @@ def test_expiry_and_restart_clear_keys_but_preserve_accounts(site):
     headers = sign_in(client, "alice")
     client.post(
         "/api/model-key",
-        json={"api_key": "fixture-only", "model": "fixture-model", "authorized": True},
+        json={"api_key": "fixture-only", "model": DEFAULT_MODEL, "authorized": True},
         headers=headers,
     )
     for session in accounts.sessions.values():
@@ -174,7 +175,7 @@ def test_each_user_model_job_uses_only_its_session_key(site, monkeypatch, framew
         key = f"{username}-secret-sentinel"
         client.post(
             "/api/model-key",
-            json={"api_key": key, "model": "fixture-model", "authorized": True},
+            json={"api_key": key, "model": DEFAULT_MODEL, "authorized": True},
             headers=headers,
         )
         result = client.post(

@@ -47,7 +47,9 @@ def finish(root, application, version):
                 archive.write(file, file.relative_to(extension).as_posix())
     for source, target in (("GettingStarted.txt", "GettingStarted.txt"),
                            ("ReleaseReadiness.txt", "ReleaseReadiness.txt")):
-        shutil.copyfile(root / "packaging/windows" / source, application / target)
+        text = (root / "packaging/windows" / source).read_text(encoding="utf-8")
+        text = text.replace("{version}", version)
+        (application / target).write_text(text, encoding="utf-8")
     notices = application / "ThirdPartyNotices"
     notices.mkdir(exist_ok=True)
     dependencies = []

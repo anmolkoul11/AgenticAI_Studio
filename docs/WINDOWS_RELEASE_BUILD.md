@@ -65,13 +65,13 @@ Build requirements are for engineers/publishers, not end users:
 From the repository root:
 
 ```powershell
-.\scripts\Build-WindowsRelease.ps1 -Version 1.0.0
+.\scripts\Build-WindowsRelease.ps1 -Version 1.0.1
 ```
 
 For a portable pilot package only:
 
 ```powershell
-.\scripts\Build-WindowsRelease.ps1 -Version 1.0.0 -PortableOnly
+.\scripts\Build-WindowsRelease.ps1 -Version 1.0.1 -PortableOnly
 ```
 
 If ISCC is not on PATH, pass `-InnoCompiler` with its full executable path.
@@ -80,12 +80,12 @@ The script creates its own locked environment under `build/windows-release/venv`
 and preserves the developer `.venv`. Existing release output is refused rather
 than overwritten. Use a new version or explicitly archive the prior output.
 
-Output under `dist/windows/1.0.0/`:
+Output under `dist/windows/1.0.1/`:
 
 - `AgenticStudio/`: complete portable application, including `_internal`.
-- `AgenticStudio-1.0.0-win-x64.zip`: complete folder for a supervised pilot.
-- `BrowserCompanion-1.0.0.zip`: extension package for a separate store submission.
-- `AgenticStudio-Setup-1.0.0-win-x64.exe`: per-user installer when ISCC is available.
+- `AgenticStudio-1.0.1-win-x64.zip`: complete folder for a supervised pilot.
+- `BrowserCompanion-1.0.1.zip`: extension package for a separate store submission.
+- `AgenticStudio-Setup-1.0.1-win-x64.exe`: per-user installer when ISCC is available.
 
 Only application resources, locked runtime packages and explicitly named
 extension assets are staged. Project `data`, `.env`, browser profiles, private
