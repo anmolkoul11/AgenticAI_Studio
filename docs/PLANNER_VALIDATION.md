@@ -38,7 +38,7 @@ or broker calls. Start with the two original failures:
 
 ```powershell
 $env:AGENTIC_MODEL_PROVIDER = "openai"
-$env:AGENTIC_MODEL_NAME = "gpt-5.4-mini"
+$env:AGENTIC_MODEL_NAME = "gpt-5.6-luna"
 $env:AGENTIC_MODEL_MAX_RETRIES = "0"
 $env:AGENTIC_ALLOW_MODEL_API = "1"
 try {

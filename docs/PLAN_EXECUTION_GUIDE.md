@@ -26,7 +26,7 @@ Follow OPENAI_SETUP.md to configure your API key in this terminal first:
 
 ```powershell
 $env:AGENTIC_MODEL_PROVIDER = "openai"
-$env:AGENTIC_MODEL_NAME = "gpt-5.4-mini"
+$env:AGENTIC_MODEL_NAME = "gpt-5.6-luna"
 $demoRequest = "Find New York hotels from $checkIn to $checkOut, at most USD 200 per night including taxes, rated at least 4 out of 5."
 uv run --locked agentic-demo langgraph plan --request $demoRequest --base-url "http://127.0.0.1:8100" --allow-model-api
 ```

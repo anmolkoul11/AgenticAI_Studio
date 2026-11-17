@@ -13,6 +13,7 @@ from uuid import UUID, uuid4
 
 from agentic_web_demo.dashboard.credential_store import CredentialStore, CredentialUnavailable
 from agentic_web_demo.dashboard.service import DashboardService
+from agentic_web_demo.model_catalog import supported_model
 
 ITERATIONS = 600_000
 
@@ -122,7 +123,17 @@ class Accounts:
             self.sessions[sid] = Session(user_id, username.casefold(), time.monotonic() + 3600)
             if profile["credential_saved"]:
                 try:
-                    self.sessions[sid].model_settings = self.credentials.load(user_id)
+                    settings = self.credentials.load(user_id)
+                    if supported_model(settings.model):
+                        self.sessions[sid].model_settings = settings
+                    else:
+                        # Keep the stored key/model intact. Changing the model is
+                        # an explicit user choice, not an automatic paid fallback.
+                        self.sessions[sid].credential_notice = (
+                            "Your saved model is outside the current model list. "
+                            "Choose a current model and add your API key again. "
+                            "Your saved key has not been deleted."
+                        )
                 except CredentialUnavailable as exc:
                     self.sessions[sid].credential_notice = str(exc)
             return sid

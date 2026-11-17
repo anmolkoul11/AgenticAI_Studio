@@ -17,7 +17,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
@@ -30,10 +30,11 @@ from agentic_web_demo.dashboard.credential_store import CredentialUnavailable
 from agentic_web_demo.dashboard.service import Approval, PlanInput
 from agentic_web_demo.exports import CONTENT_TYPES, ExportError, build_export
 from agentic_web_demo.extension_channel import ExtensionRuns
+from agentic_web_demo.model_catalog import DEFAULT_MODEL, model_catalog, supported_model
 from agentic_web_demo.portal.app import PortalSettings
 
 ASSETS = Path(__file__).parent / "static"
-UI_VERSION = "2026-11-11.1"
+UI_VERSION = "2026-11-17.1"
 
 
 class CustomApproval(BaseModel):
@@ -60,9 +61,16 @@ class Login(BaseModel):
 class ModelKey(BaseModel):
     model_config = ConfigDict(extra="forbid")
     api_key: SecretStr = Field(min_length=1, max_length=1024)
-    model: str = Field(pattern=r"^[A-Za-z0-9._:-]{1,100}$")
+    model: str = Field(default=DEFAULT_MODEL, pattern=r"^[A-Za-z0-9._:-]{1,100}$")
     remember: bool = False
     authorized: Literal[True]
+
+    @field_validator("model")
+    @classmethod
+    def current_model(cls, value):
+        if not supported_model(value):
+            raise ValueError("Choose a model from the current model list.")
+        return value
 
 
 class AdminAction(BaseModel):
@@ -73,10 +81,21 @@ class AdminAction(BaseModel):
 
 def create_app(settings=None, service=None):
     instance_id = secrets.token_hex(16)
-    settings = settings or PortalSettings.from_env()
+    desktop = os.environ.get("AGENTIC_DASHBOARD_DESKTOP") == "1"
+    # The installable product runs Website Studio without the synthetic hotel
+    # portal. Keep the existing developer launcher and its setup unchanged.
+    if settings is None and not desktop:
+        settings = PortalSettings.from_env()
+    capabilities = {
+        "hotel_demo": not desktop,
+        "event_publishing": not desktop
+        or os.environ.get("AGENTIC_DESKTOP_ENABLE_EVENTS") == "1",
+    }
     accounts = Accounts(
         service.data_dir if service else Settings.from_env().data_dir,
-        service.policy_path if service else Path("config/rules.yaml"),
+        service.policy_path if service else Path(
+            os.environ.get("AGENTIC_DASHBOARD_POLICY_PATH", "config/rules.yaml")
+        ),
         service.target
         if service
         else os.environ.get("AGENTIC_DASHBOARD_PORTAL_URL", "http://127.0.0.1:8000"),
@@ -105,7 +124,7 @@ def create_app(settings=None, service=None):
             accounts.close()
 
     app = FastAPI(
-        title="Agentic Demo Studio",
+        title="Agentic Studio" if desktop else "Agentic Demo Studio",
         lifespan=lifespan,
         docs_url=None,
         redoc_url=None,
@@ -242,8 +261,8 @@ def create_app(settings=None, service=None):
         if request.url.path == "/api/model-key":
             return JSONResponse(
                 {
-                    "detail": "Enter a key and model ID, and confirm you are "
-                    "authorized to use this key and its billing account."
+                    "detail": "Choose a current model from the dropdown and enter your API key. "
+                    "Save API connection authorizes use of the key and its billing account."
                 },
                 status_code=422,
             )
@@ -259,6 +278,14 @@ def create_app(settings=None, service=None):
     def index():
         return FileResponse(ASSETS / "index.html")
 
+    @app.get("/api/desktop/health")
+    def desktop_health():
+        if not desktop:
+            raise HTTPException(404, "Not found")
+        # Used only by the local desktop controller; no account or job details.
+        return {"service": "agentic-studio-desktop", "status": "ready",
+                "ui_version": UI_VERSION}
+
     @app.get("/api/session")
     def session(request: Request):
         if "csrf" not in request.session:
@@ -271,6 +298,8 @@ def create_app(settings=None, service=None):
             "username": current.username if current else None,
             "ui_version": UI_VERSION,
             "instance_id": instance_id,
+            "desktop": desktop,
+            "capabilities": capabilities,
         }
 
     def rate_limit():
@@ -369,6 +398,9 @@ def create_app(settings=None, service=None):
             "adapter": "demo-hotels",
             "model": current.model_settings.model if current.model_settings else "Not configured",
             "model_configured": current.model_settings is not None,
+            **model_catalog(),
+            "desktop": desktop,
+            "capabilities": capabilities,
             "policy": load_rules(service.policy_path).model_dump(mode="json"),
         }
 
