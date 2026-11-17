@@ -8,6 +8,19 @@ You can use it to find hotels for a particular stay, collect articles on a topic
 or turn information from a website into an organized set of results. The fields
 adapt to your request and the information available on the page.
 
+## Download for Windows
+
+**[Download Agentic Studio 1.0.1 for Windows (x64 ZIP)](https://github.com/anmolkoul11/AgenticAI_Web_demo/releases/download/v1.0.1/AgenticStudio-1.0.1-win-x64.zip)**
+
+Extract the entire ZIP and open `AgenticStudio.exe`. This portable preview
+includes Python, Chromium, and the optional Browser Companion extension.
+Create a local account and add your OpenAI API key under **API connection**.
+GPT-5.6 Luna is selected by default.
+
+For setup steps, including how to add Browser Companion to Chrome or Edge, see
+the [Windows quick start](docs/WINDOWS_DISTRIBUTION.md). The release notes and
+**Assets** are on the [Agentic Studio 1.0.1 release page](https://github.com/anmolkoul11/AgenticAI_Web_demo/releases/tag/v1.0.1).
+
 ## How it works
 
 1. **Choose your browser.** Open a new browser from the dashboard, or connect
@@ -22,21 +35,6 @@ adapt to your request and the information available on the page.
 
 The results remain a preview until you approve saving them. If information is
 missing or uncertain, the dashboard shows it for review.
-
-## Start using the Windows app
-
-The current Windows package is **`AgenticStudio-1.0.1-win-x64.zip`**, a portable
-app rather than a Setup.exe installer. Extract the whole ZIP and open
-`AgenticStudio.exe`. Python, the required libraries and Chromium are included;
-you do not need to install developer tools or Docker.
-
-Create a local account and add your own OpenAI API key in **API connection**.
-GPT-5.6 Luna is the default model; use the **Model** dropdown to choose another current model.
-Browser Companion is included, but must be added to Chrome or Edge separately
-if you want to use an existing tab.
-
-Follow the [Windows quick start](docs/WINDOWS_DISTRIBUTION.md) for the short,
-step-by-step instructions.
 
 ## Where your information goes
 
